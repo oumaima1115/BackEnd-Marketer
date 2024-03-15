@@ -1,0 +1,133 @@
+def fetch_author_info(tweets_list, headers):
+    tweet_url = "https://twitter135.p.rapidapi.com/v2/UserTweets/"
+    author_id = tweets_list["author"]
+    querystring = {"id": author_id, "count": "10"}
+    response = requests.get(tweet_url, headers=headers, params=querystring).json()
+    instructions_list = response.get('data', {}).get('user', {}).get('result', {}).get('timeline_v2', {}).get('timeline', {}).get('instructions', [])
+    entries_data = next((i['entries'] for i in instructions_list if i.get('type') == 'TimelineAddEntries'), [])
+    like = 0
+    name = ""
+    title = ""
+    for entry in entries_data:
+        try:
+            tweet_data = entry['content']['itemContent']['tweet_results']['result']
+            like = tweet_data.get("core", {}).get("user_results", {}).get("result", {}).get("legacy", {}).get("media_count", 0)
+            name = tweet_data.get("core", {}).get("user_results", {}).get("result", {}).get("legacy", {}).get("name", "")
+            title = tweet_data.get("legacy", {}).get("full_text", "")
+        except KeyError:
+            print("Error: Required keys not found in tweet data.")
+    return {"like": like, "author": name, "description": title}
+
+def twitter_scrap(search_languages: str,
+                  items: int,
+                  hashtag_pattern: str,
+                  mention_pattern: str,
+                  twitter_original_date_format: str,
+                  y_m_dTHM_format: str,
+                  post_type: str,
+                  twitter_source: str,
+                  mention: str,
+                  user_id: str,
+                  mode: str,
+                  twitter_start_date: str,
+                  twitter_end_date: str,
+                  twitter_rapid_api_url: str,
+                  twitter_x_rapid_api_key: str,
+                  twitter_x_rapid_api_host: str,
+                  scrap_config) -> list:
+    # start_time = time.time()
+
+    tweets_list = []
+    headers = {
+        "X-RapidAPI-Key": twitter_x_rapid_api_key,
+        "X-RapidAPI-Host": twitter_x_rapid_api_host
+    }
+    # mention_regex = re.compile(mention_pattern)
+    next_cursor = None
+    previous_cursor = None
+    tweets_collected = 0
+    max_tweets = 100
+    preprocessed_mention = preprocess_text(mention)
+    while tweets_collected < max_tweets:
+        querystring = {
+            "q": preprocessed_mention + " until:" + twitter_end_date + " since:" + twitter_start_date + " " + search_languages
+        }
+        if next_cursor:
+            querystring["cursor"] = next_cursor
+
+        response = requests.request("GET", twitter_rapid_api_url, headers=headers, params=querystring).json()
+        instructions_list = response['data']['search_by_raw_query']['search_timeline']['timeline']['instructions']
+
+        # Extract entries_data from the first TimelineAddEntries instruction
+        entries_data = next((i['entries'] for i in instructions_list if i.get('type') == 'TimelineAddEntries'), [])
+
+        for entry in entries_data:
+            try:
+                tweet_data = entry['content']['itemContent']['tweet_results']['result']['legacy']
+                tweet_id = tweet_data.get("id_str")
+                tweet_full_text = tweet_data.get("full_text")
+                scrap_config.set_mention_pattern(tweet_full_text)
+                mention_pattern = scrap_config.mention_pattern
+                mentions = scrap_config.extract_mentions(tweet_full_text, mention_pattern)
+                hashtags = re.findall(hashtag_pattern, tweet_full_text)
+
+                tweet_date = datetime.strptime(
+                    tweet_data.get("created_at"),
+                    twitter_original_date_format
+                ).strftime(y_m_dTHM_format)
+
+                tweet_source_link = f"https://twitter.com/user/status/{tweet_id}"
+                twitter_document = {
+                    "user_id": str(user_id),
+                    "text": tweet_full_text,
+                    "type": post_type,
+                    "author": tweet_data.get("user_id_str"),
+                    "source": twitter_source,
+                    "source_link": tweet_source_link,
+                    "date": tweet_date,
+                    "mention": mention,
+                    "nbr_mentions": len(mentions),
+                    "nbr_hashtags": len(hashtags),
+                    "mentions_texts": mentions,
+                    "hashtags_texts": hashtags
+                }
+
+                tweets_list.append(twitter_document)
+                tweets_collected += 1                
+            except KeyError:
+                continue
+
+        # Accessing the cursor in a streamlined manner
+        next_cursor = next((e['content'].get('value') for e in entries_data if e['content'].get('entryType') == 'TimelineTimelineCursor'), None)
+
+        if not next_cursor or next_cursor == previous_cursor:
+            break
+
+        previous_cursor = next_cursor
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        future_to_tweet = {executor.submit(fetch_author_info, tweet, headers): tweet for tweet in tweets_list}
+    
+    for future in concurrent.futures.as_completed(future_to_tweet):
+        tweet = future_to_tweet[future]
+        author_info = future.result()  # Fetch result from the future
+        print("author_info", author_info)
+        tweet.update(author_info)  # Assuming tweet is a dictionary and you're adding/updating author details
+        # print("Updated tweet with author info:", tweet)
+
+    desired_keys = ['source', 'description', 'author', 'like']
+    filtered_tweets_list = [
+        {key: twitter_document.get(key, '') for key in desired_keys}
+        for twitter_document in tweets_list]
+    folder_name = "csv_data"
+    if not os.path.exists(folder_name):
+        os.makedirs(folder_name)
+    csv_file_path = os.path.join(folder_name, "twitter.csv")
+
+    with open(csv_file_path, 'w', newline='', encoding='utf-8') as file:
+        fieldnames = filtered_tweets_list[0].keys() if filtered_tweets_list else []
+        writer = csv.DictWriter(file, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(filtered_tweets_list)
+    print("Final tweets list:", tweets_list)
+    return tweets_list

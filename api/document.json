@@ -1,0 +1,32 @@
+[
+    {
+        "user_id": 12345,
+        "text": "hello",
+        "type": "post_type",
+        "source": "linkedin_source",
+        "source_link": "profile_url",
+        "date": "video_date",
+        "mention": "nike",
+        "nbr_mentions": 1,
+        "nbr_hashtags": 1,
+        "mentions_texts": ["nike"],
+        "hashtags_texts": ["#nike"],
+        "author": "alliekmiller",
+        "profileURL": "https://www.linkedin.com/in/alliekmiller/"
+    },
+    {
+        "user_id": 12344,
+        "text": "hello",
+        "type": "post_type",
+        "source": "linkedin_source",
+        "source_link": "profile_url",
+        "date": "video_date",
+        "mention": "nike",
+        "nbr_mentions": 1,
+        "nbr_hashtags": 1,
+        "mentions_texts": ["nike"],
+        "hashtags_texts": ["#nike"],
+        "author": "nour",
+        "profileURL": "https://www.linkedin.com/in/nour/"
+    }
+]

@@ -1,0 +1,21 @@
+Source,Like,Author,Description,User_id,Text,Type,Source_link,Date,Mention,Nbr_mentions,Nbr_hashtags,Mentions_texts,Hashtags_texts
+reddit,1.0,I_Feel_It_Too,[removed],12345,"> (which hasn't been 16 since, I'm not sure)
+
+I forgot to respond to this one. Holy shit, you're right! If you ever find out exactly when they switched from 16 bits to... looks like 64 bits, I'd love to know. It must have been REALLY RECENTLY, though, because *[their documentation still says explicitly that Matlab uses 16 bit arithmetic by default](https://www.mathworks.com/help/symbolic/digits.html#bt8wnpt-4).* It must have been in the last six years or so at the latest. Which means that this superior *numerical* CAS of yours stayed on 16 bit arithmetic, with an allegedly ""intuitive"" suite of **16 bit numerical toolboxes (?!?!)**, for literally decades after the entire world had moved to at least 32 bits. Seriously, can you name even a single piece of actively developed mathematical software that was still 16 bit by default in 2010? I for one cannot.
+
+I'm really sorry, I know you've stopped reading by now, but I can't resist getting another shot in here:
+
+> What makes Matlab domain-intuitive isn't ...the actual programming language...
+
+Great! Can we finally just agree that Matlab is a shit programming langauge, then? The rest is just haggling over the details.",text,https://www.reddit.com/r/Python/comments/cmdbuf/-/ew668dc,2019-08-07T05:24,nike,0,1,[],['#bt8wnpt']
+reddit,1.0,I_Feel_It_Too,"I have a multi-person team working on a project with ~2.5 million rows of data. The project has been prototyped by non-programmer scientists for some time. Now we are doing a lot of clean-up, normalization, and other meaningful restructuring. 
+
+What are some resources for learning about versioning a database schema and the datasets themselves? Right now there is a lot of rapid prototyping, and we are running into headaches keeping in sync and maintaining integrity. ",12345,"> (which hasn't been 16 since, I'm not sure)
+
+I forgot to respond to this one. Holy shit, you're right! If you ever find out exactly when they switched from 16 bits to... looks like 64 bits, I'd love to know. It must have been REALLY RECENTLY, though, because *[their documentation still says explicitly that Matlab uses 16 bit arithmetic by default](https://www.mathworks.com/help/symbolic/digits.html#bt8wnpt-4).* It must have been in the last six years or so at the latest. Which means that this superior *numerical* CAS of yours stayed on 16 bit arithmetic, with an allegedly ""intuitive"" suite of **16 bit numerical toolboxes (?!?!)**, for literally decades after the entire world had moved to at least 32 bits. Seriously, can you name even a single piece of actively developed mathematical software that was still 16 bit by default in 2010? I for one cannot.
+
+I'm really sorry, I know you've stopped reading by now, but I can't resist getting another shot in here:
+
+> What makes Matlab domain-intuitive isn't ...the actual programming language...
+
+Great! Can we finally just agree that Matlab is a shit programming langauge, then? The rest is just haggling over the details.",text,https://www.reddit.com/r/Python/comments/cmdbuf/-/ew668dc,2019-08-07T05:24,nike,0,1,[],['#bt8wnpt']
